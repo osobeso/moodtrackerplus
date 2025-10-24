@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MoodTrackerPlus/MoodTrackerPlus.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>

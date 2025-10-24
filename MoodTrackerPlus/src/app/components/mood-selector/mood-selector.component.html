@@ -1,0 +1,36 @@
+<div class="mood-selector-container">
+  <header class="header">
+    <h1>How are you feeling today?</h1>
+    <p class="subtitle">Track your emotional journey</p>
+  </header>
+
+  <div class="mood-grid">
+    @for (mood of moods; track mood.name) {
+      <button 
+        class="mood-button" 
+        [style.background-color]="mood.color"
+        (click)="selectMood(mood)">
+        <span class="mood-emoji">{{ mood.emoji }}</span>
+        <span class="mood-name">{{ mood.name }}</span>
+      </button>
+    }
+  </div>
+
+  <footer class="footer">
+    <button class="history-button" (click)="viewHistory()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 8v4l3 3"></path>
+        <circle cx="12" cy="12" r="10"></circle>
+      </svg>
+      View History
+    </button>
+  </footer>
+</div>
+
+<app-toast 
+  [show]="showToast" 
+  [message]="toastMessage" 
+  [emoji]="toastEmoji"
+  (revert)="revertLastMood()">
+</app-toast>
+
