@@ -1,13 +1,13 @@
-<div class="toast" [class.show]="show">
+<div class="toast" [class.show]="show" role="alert" aria-live="assertive" [attr.aria-hidden]="!show">
   <div class="toast-content">
-    <span class="toast-emoji">{{ emoji }}</span>
+    <span class="toast-emoji" aria-hidden="true">{{ emoji }}</span>
     <span class="toast-message">{{ message }}</span>
   </div>
-  <button class="revert-button" (click)="onRevert()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <button class="revert-button" (click)="onRevert()" aria-label="Undo last mood entry">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <polyline points="1 4 1 10 7 10"></polyline>
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
     </svg>
-    Undo
+    <span>Undo</span>
   </button>
 </div>

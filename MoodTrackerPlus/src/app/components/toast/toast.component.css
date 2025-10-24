@@ -60,6 +60,20 @@
   transform: scale(1.05);
 }
 
+.revert-button:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.revert-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.revert-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
 .revert-button:active {
   transform: scale(0.98);
 }

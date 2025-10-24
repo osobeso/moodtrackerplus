@@ -5,6 +5,18 @@
   min-height: 100vh;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -45,6 +57,20 @@
   transform: translateY(-2px);
 }
 
+.back-button:focus, .clear-button:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.back-button:focus:not(:focus-visible), .clear-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.back-button:focus-visible, .clear-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
 .clear-button {
   border-color: #f56565;
   color: #f56565;
@@ -53,6 +79,16 @@
 .clear-button:hover {
   background: #f56565;
   color: white;
+}
+
+.clear-button:focus {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
+}
+
+.clear-button:focus-visible {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
 }
 
 .empty-state {
@@ -93,6 +129,20 @@
 .add-mood-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.add-mood-button:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.add-mood-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.add-mood-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
 }
 
 .entries-list {
@@ -161,6 +211,26 @@
 }
 
 .delete-button:hover {
+  background: #fee;
+  color: #f56565;
+}
+
+.delete-button:focus {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
+  background: #fee;
+  color: #f56565;
+}
+
+.delete-button:focus:not(:focus-visible) {
+  outline: none;
+  background: transparent;
+  color: #cbd5e0;
+}
+
+.delete-button:focus-visible {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
   background: #fee;
   color: #f56565;
 }
