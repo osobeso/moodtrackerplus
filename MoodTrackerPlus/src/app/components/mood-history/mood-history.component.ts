@@ -43,6 +43,10 @@ export class MoodHistoryComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
+  viewWeatherInsights(): void {
+    this.router.navigate(['/weather-insights']);
+  }
+
   formatDate(date: Date): string {
     const options: Intl.DateTimeFormatOptions = {
       month: 'short',

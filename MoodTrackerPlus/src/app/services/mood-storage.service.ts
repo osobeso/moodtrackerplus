@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MoodEntry } from '../models/mood-entry.model';
+import { MoodEntry, WeatherData } from '../models/mood-entry.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,13 +22,15 @@ export class MoodStorageService {
     return [];
   }
 
-  saveMoodEntry(mood: string, emoji: string): MoodEntry {
+  saveMoodEntry(mood: string, emoji: string, weather?: WeatherData, location?: string): MoodEntry {
     const entries = this.getMoodEntries();
     const newEntry: MoodEntry = {
       id: this.generateId(),
       mood,
       emoji,
-      timestamp: new Date()
+      timestamp: new Date(),
+      weather,
+      location
     };
     entries.unshift(newEntry); // Add to the beginning
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));

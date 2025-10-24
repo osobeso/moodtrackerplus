@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MoodStorageService } from '../../services/mood-storage.service';
+import { WeatherService } from '../../services/weather.service';
 import { MoodEntry } from '../../models/mood-entry.model';
 
 interface Mood {
@@ -33,11 +34,26 @@ export class MoodSelectorComponent {
 
   constructor(
     private moodStorage: MoodStorageService,
+    private weatherService: WeatherService,
     private router: Router
   ) {}
 
-  selectMood(mood: Mood): void {
-    this.lastSavedEntry = this.moodStorage.saveMoodEntry(mood.name, mood.emoji);
+  async selectMood(mood: Mood): Promise<void> {
+    // Fetch weather data
+    let weather = null;
+    let location = undefined;
+    
+    try {
+      const locationData = await this.weatherService.getCurrentLocation();
+      if (locationData) {
+        weather = await this.weatherService.getCurrentWeather(locationData.lat, locationData.lon);
+        location = locationData.city;
+      }
+    } catch (error) {
+      console.warn('Could not fetch weather data:', error);
+    }
+
+    this.lastSavedEntry = this.moodStorage.saveMoodEntry(mood.name, mood.emoji, weather || undefined, location);
     this.toastMessage = `${mood.name} mood recorded!`;
     this.toastEmoji = mood.emoji;
     this.showToast = true;
@@ -68,5 +84,9 @@ export class MoodSelectorComponent {
 
   viewHistory(): void {
     this.router.navigate(['/history']);
+  }
+
+  viewWeatherInsights(): void {
+    this.router.navigate(['/weather-insights']);
   }
 }

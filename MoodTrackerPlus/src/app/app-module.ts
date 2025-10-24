@@ -6,13 +6,15 @@ import { App } from './app';
 import { MoodSelectorComponent } from './components/mood-selector/mood-selector.component';
 import { MoodHistoryComponent } from './components/mood-history/mood-history.component';
 import { ToastComponent } from './components/toast/toast.component';
+import { WeatherCorrelationComponent } from './components/weather-correlation/weather-correlation.component';
 
 @NgModule({
   declarations: [
     App,
     MoodSelectorComponent,
     MoodHistoryComponent,
-    ToastComponent
+    ToastComponent,
+    WeatherCorrelationComponent
   ],
   imports: [
     BrowserModule,

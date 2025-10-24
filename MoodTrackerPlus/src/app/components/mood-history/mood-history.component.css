@@ -23,7 +23,12 @@
   text-align: center;
 }
 
-.back-button, .clear-button {
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.back-button, .clear-button, .weather-insights-button {
   background: transparent;
   border: 2px solid #667eea;
   color: #667eea;
@@ -39,7 +44,7 @@
   font-family: inherit;
 }
 
-.back-button:hover, .clear-button:hover {
+.back-button:hover, .clear-button:hover, .weather-insights-button:hover {
   background: #667eea;
   color: white;
   transform: translateY(-2px);
@@ -52,6 +57,16 @@
 
 .clear-button:hover {
   background: #f56565;
+  color: white;
+}
+
+.weather-insights-button {
+  border-color: #f093fb;
+  color: #f093fb;
+}
+
+.weather-insights-button:hover {
+  background: #f093fb;
   color: white;
 }
 

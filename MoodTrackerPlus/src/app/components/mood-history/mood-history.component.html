@@ -1,46 +1,57 @@
 <div class="history-container">
   <header class="header">
-    <button class="back-button" (click)="goBack()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button class="back-button" (click)="goBack()" aria-label="Go back to home page">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
         <path d="M19 12H5M12 19l-7-7 7-7"/>
       </svg>
-      Back
+      <span>Back</span>
     </button>
     <h1>Mood History</h1>
-    @if (moodEntries.length > 0) {
-      <button class="clear-button" (click)="clearAll()">Clear All</button>
-    }
+    <nav class="header-actions" aria-label="Page actions">
+      <button class="weather-insights-button" (click)="viewWeatherInsights()" aria-label="View weather insights">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        <span>Weather</span>
+      </button>
+      @if (moodEntries.length > 0) {
+        <button class="clear-button" (click)="clearAll()" aria-label="Clear all mood entries">Clear All</button>
+      }
+    </nav>
   </header>
 
-  @if (moodEntries.length === 0) {
-    <div class="empty-state">
-      <div class="empty-icon">📊</div>
-      <h2>No mood entries yet</h2>
-      <p>Start tracking your mood to see your history here</p>
-      <button class="add-mood-button" (click)="goBack()">Add Your First Mood</button>
-    </div>
-  } @else {
-    <div class="entries-list">
-      @for (entry of moodEntries; track entry.id) {
-        <div class="entry-card">
-          <div class="entry-emoji">{{ entry.emoji }}</div>
-          <div class="entry-details">
-            <h3 class="entry-mood">{{ entry.mood }}</h3>
-            <p class="entry-time">{{ getRelativeTime(entry.timestamp) }}</p>
-            <p class="entry-date">{{ formatDate(entry.timestamp) }} at {{ formatTime(entry.timestamp) }}</p>
-          </div>
-          <button class="delete-button" (click)="deleteEntry(entry.id)" aria-label="Delete entry">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
-        </div>
-      }
-    </div>
+  <main>
+    @if (moodEntries.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon" aria-hidden="true">📊</div>
+        <h2>No mood entries yet</h2>
+        <p>Start tracking your mood to see your history here</p>
+        <button class="add-mood-button" (click)="goBack()">Add Your First Mood</button>
+      </div>
+    } @else {
+      <div class="entries-list" role="list" aria-label="Mood history entries">
+        @for (entry of moodEntries; track entry.id) {
+          <article class="entry-card" role="listitem">
+            <div class="entry-emoji" aria-hidden="true">{{ entry.emoji }}</div>
+            <div class="entry-details">
+              <h3 class="entry-mood">{{ entry.mood }}</h3>
+              <p class="entry-time">{{ getRelativeTime(entry.timestamp) }}</p>
+              <p class="entry-date">{{ formatDate(entry.timestamp) }} at {{ formatTime(entry.timestamp) }}</p>
+            </div>
+            <button class="delete-button" (click)="deleteEntry(entry.id)" [attr.aria-label]="'Delete ' + entry.mood + ' entry from ' + formatDate(entry.timestamp)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span class="sr-only">Delete</span>
+            </button>
+          </article>
+        }
+      </div>
 
-    <div class="stats">
-      <p class="total-entries">Total entries: {{ moodEntries.length }}</p>
-    </div>
-  }
+      <div class="stats" role="status" aria-live="polite">
+        <p class="total-entries">Total entries: {{ moodEntries.length }}</p>
+      </div>
+    }
+  </main>
 </div>

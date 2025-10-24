@@ -1,0 +1,150 @@
+<div class="correlation-container">
+  <header class="header">
+    <h1>🌤️ Weather & Mood Insights</h1>
+    <p class="subtitle">Discover how weather influences your mood</p>
+  </header>
+
+  <main>
+    <div *ngIf="!hasWeatherData" class="no-data">
+      <div class="no-data-icon" aria-hidden="true">📊</div>
+      <h2>No Weather Data Yet</h2>
+      <p>Start tracking your moods to see weather correlations!</p>
+      <p class="hint">Weather data is automatically captured when you log a mood.</p>
+      <button class="btn-primary" (click)="goBack()">Start Tracking</button>
+    </div>
+
+    <div *ngIf="hasWeatherData" class="data-container">
+      <!-- Summary Cards -->
+      <section class="summary-section" aria-label="Summary statistics">
+        <div class="summary-card">
+          <div class="summary-icon" aria-hidden="true">📝</div>
+          <div class="summary-content">
+            <h2>{{ entriesWithWeather.length }}</h2>
+            <p>Entries with Weather</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon" aria-hidden="true">🌦️</div>
+          <div class="summary-content">
+            <h2>{{ weatherStats.length }}</h2>
+            <p>Weather Conditions</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon" aria-hidden="true">😊</div>
+          <div class="summary-content">
+            <h2>{{ moodInsights.length }}</h2>
+            <p>Tracked Moods</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weather Statistics -->
+      <section class="section" aria-labelledby="weather-patterns-heading">
+        <h2 id="weather-patterns-heading">🌈 Weather Patterns</h2>
+        <p class="section-subtitle">How different weather conditions correlate with your moods</p>
+        
+        <div class="weather-stats-grid">
+          <article class="weather-card" *ngFor="let stat of weatherStats">
+            <div class="weather-header">
+              <span class="weather-emoji" aria-hidden="true">{{ getWeatherIcon(stat.weatherCondition) }}</span>
+              <h3>{{ stat.weatherCondition }}</h3>
+            </div>
+            <div class="weather-metrics">
+              <div class="metric">
+                <span class="metric-label">Occurrences</span>
+                <span class="metric-value">{{ stat.count }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Avg Temp</span>
+                <span class="metric-value">{{ stat.avgTemperature }}°C</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Avg Humidity</span>
+                <span class="metric-value">{{ stat.avgHumidity }}%</span>
+              </div>
+            </div>
+            <div class="mood-distribution">
+              <p class="distribution-title">Mood Distribution:</p>
+              <div class="mood-tags">
+                <span class="mood-tag" *ngFor="let mood of stat.moods | keyvalue">
+                  {{ mood.key }}: {{ mood.value }}
+                </span>
+              </div>
+            </div>
+            <button class="filter-btn" (click)="filterByWeather(stat.weatherCondition)" [attr.aria-label]="'Filter entries for ' + stat.weatherCondition + ' weather'">
+              Filter Entries
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <!-- Mood Insights -->
+      <section class="section" aria-labelledby="mood-insights-heading">
+        <h2 id="mood-insights-heading">😊 Mood Insights</h2>
+        <p class="section-subtitle">Weather patterns for each of your moods</p>
+        
+        <div class="mood-insights-grid">
+          <article class="insight-card" *ngFor="let insight of moodInsights">
+            <div class="insight-header">
+              <span class="mood-emoji-large" aria-hidden="true">{{ insight.emoji }}</span>
+              <div>
+                <h3>{{ insight.mood }}</h3>
+                <p class="insight-count">{{ insight.count }} entries</p>
+              </div>
+            </div>
+            <div class="insight-details">
+              <div class="detail-row">
+                <span class="detail-icon" aria-hidden="true">🌤️</span>
+                <span class="detail-text">Most common: {{ insight.weatherStats.mostCommon }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-icon" aria-hidden="true">🌡️</span>
+                <span class="detail-text">Avg temp: {{ insight.weatherStats.avgTemp }}°C</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-icon" aria-hidden="true">💧</span>
+                <span class="detail-text">Avg humidity: {{ insight.weatherStats.avgHumidity }}%</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Filtered Entries -->
+      <section class="section" *ngIf="selectedFilter !== 'all'" aria-labelledby="filtered-entries-heading">
+        <div class="filter-header">
+          <h2 id="filtered-entries-heading">📋 Filtered Entries: {{ selectedFilter }}</h2>
+          <button class="clear-filter-btn" (click)="clearFilter()" aria-label="Clear weather filter">Clear Filter</button>
+        </div>
+        
+        <div class="entries-list" role="list" aria-label="Filtered mood entries">
+          <article class="entry-card" *ngFor="let entry of getFilteredEntries()" role="listitem">
+            <div class="entry-main">
+              <span class="entry-emoji" aria-hidden="true">{{ entry.emoji }}</span>
+              <div class="entry-info">
+                <h4>{{ entry.mood }}</h4>
+                <p class="entry-date">{{ formatDate(entry.timestamp) }}</p>
+              </div>
+            </div>
+            <div class="entry-weather" *ngIf="entry.weather">
+              <div class="weather-info">
+                <span class="weather-icon" aria-hidden="true">{{ getWeatherIcon(entry.weather.condition) }}</span>
+                <div>
+                  <p class="weather-desc">{{ entry.weather.description }}</p>
+                  <p class="weather-details">{{ entry.weather.temperature }}°C • {{ entry.weather.humidity }}% humidity</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Action Buttons -->
+      <nav class="action-buttons" aria-label="Page navigation">
+        <button class="btn-secondary" (click)="viewHistory()">View Full History</button>
+        <button class="btn-primary" (click)="goBack()">Back to Home</button>
+      </nav>
+    </div>
+  </main>
+</div>
