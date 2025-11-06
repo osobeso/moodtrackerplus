@@ -37,25 +37,39 @@ export class MoodSelectorComponent {
   ) {}
 
   selectMood(mood: Mood): void {
-    this.lastSavedEntry = this.moodStorage.saveMoodEntry(mood.name, mood.emoji);
-    this.toastMessage = `${mood.name} mood recorded!`;
-    this.toastEmoji = mood.emoji;
-    this.showToast = true;
+    this.moodStorage.saveMoodEntry(mood.name, mood.emoji)
+      .then(entry => {
+        this.lastSavedEntry = entry;
+        this.toastMessage = `${mood.name} mood recorded!`;
+        this.toastEmoji = mood.emoji;
+        this.showToast = true;
 
-    // Auto-hide toast after 5 seconds
-    if (this.toastTimeout) {
-      clearTimeout(this.toastTimeout);
-    }
-    this.toastTimeout = setTimeout(() => {
-      this.hideToast();
-    }, 5000);
+        // Auto-hide toast after 5 seconds
+        if (this.toastTimeout) {
+          clearTimeout(this.toastTimeout);
+        }
+        this.toastTimeout = setTimeout(() => {
+          this.hideToast();
+        }, 5000);
+      })
+      .catch(error => {
+        console.error('Error saving mood:', error);
+        this.toastMessage = 'Failed to save mood. Please try again.';
+        this.toastEmoji = '❌';
+        this.showToast = true;
+      });
   }
 
   revertLastMood(): void {
     if (this.lastSavedEntry) {
-      this.moodStorage.deleteMoodEntry(this.lastSavedEntry.id);
-      this.lastSavedEntry = null;
-      this.hideToast();
+      this.moodStorage.deleteMoodEntry(this.lastSavedEntry.id)
+        .then(() => {
+          this.lastSavedEntry = null;
+          this.hideToast();
+        })
+        .catch(error => {
+          console.error('Error reverting mood:', error);
+        });
     }
   }
 

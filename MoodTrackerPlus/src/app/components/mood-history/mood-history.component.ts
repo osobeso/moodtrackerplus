@@ -22,20 +22,39 @@ export class MoodHistoryComponent implements OnInit {
   }
 
   loadEntries(): void {
-    this.moodEntries = this.moodStorage.getMoodEntries();
+    this.moodStorage.getMoodEntries()
+      .then(entries => {
+        this.moodEntries = entries;
+      })
+      .catch(error => {
+        console.error('Error loading mood entries:', error);
+        this.moodEntries = [];
+      });
   }
 
   deleteEntry(id: string): void {
     if (confirm('Are you sure you want to delete this entry?')) {
-      this.moodStorage.deleteMoodEntry(id);
-      this.loadEntries();
+      this.moodStorage.deleteMoodEntry(id)
+        .then(() => {
+          this.loadEntries();
+        })
+        .catch(error => {
+          console.error('Error deleting entry:', error);
+          alert('Failed to delete entry. Please try again.');
+        });
     }
   }
 
   clearAll(): void {
     if (confirm('Are you sure you want to clear all mood history? This cannot be undone.')) {
-      this.moodStorage.clearAllEntries();
-      this.loadEntries();
+      this.moodStorage.clearAllEntries()
+        .then(() => {
+          this.loadEntries();
+        })
+        .catch(error => {
+          console.error('Error clearing entries:', error);
+          alert('Failed to clear entries. Please try again.');
+        });
     }
   }
 

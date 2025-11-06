@@ -1,50 +1,46 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, firstValueFrom } from 'rxjs';
 import { MoodEntry } from '../models/mood-entry.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MoodStorageService {
-  private readonly STORAGE_KEY = 'mood-tracker-entries';
+  private readonly apiUrl = `${environment.apiUrl}/moods`;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  getMoodEntries(): MoodEntry[] {
-    const data = localStorage.getItem(this.STORAGE_KEY);
-    if (data) {
-      const entries = JSON.parse(data);
-      // Convert timestamp strings back to Date objects
-      return entries.map((entry: any) => ({
+  getMoodEntries(): Promise<MoodEntry[]> {
+    return firstValueFrom(
+      this.http.get<MoodEntry[]>(this.apiUrl)
+    ).then(entries => 
+      entries.map(entry => ({
         ...entry,
         timestamp: new Date(entry.timestamp)
-      }));
-    }
-    return [];
+      }))
+    );
   }
 
-  saveMoodEntry(mood: string, emoji: string): MoodEntry {
-    const entries = this.getMoodEntries();
-    const newEntry: MoodEntry = {
-      id: this.generateId(),
-      mood,
-      emoji,
-      timestamp: new Date()
-    };
-    entries.unshift(newEntry); // Add to the beginning
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
-    return newEntry;
+  saveMoodEntry(mood: string, emoji: string): Promise<MoodEntry> {
+    return firstValueFrom(
+      this.http.post<MoodEntry>(this.apiUrl, { mood, emoji })
+    ).then(entry => ({
+      ...entry,
+      timestamp: new Date(entry.timestamp)
+    }));
   }
 
-  deleteMoodEntry(id: string): void {
-    const entries = this.getMoodEntries().filter(entry => entry.id !== id);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+  deleteMoodEntry(id: string): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(`${this.apiUrl}/${id}`)
+    );
   }
 
-  clearAllEntries(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
-  }
-
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  clearAllEntries(): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(this.apiUrl)
+    );
   }
 }
