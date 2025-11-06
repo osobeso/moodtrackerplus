@@ -1,0 +1,5 @@
+---
+applyTo: '**/*.html'
+---
+
+Add comments
