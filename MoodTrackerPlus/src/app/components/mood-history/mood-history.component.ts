@@ -3,6 +3,12 @@ import { Router } from '@angular/router';
 import { MoodStorageService } from '../../services/mood-storage.service';
 import { MoodEntry } from '../../models/mood-entry.model';
 
+interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+  entries: MoodEntry[];
+}
+
 @Component({
   selector: 'app-mood-history',
   templateUrl: './mood-history.component.html',
@@ -11,6 +17,9 @@ import { MoodEntry } from '../../models/mood-entry.model';
 })
 export class MoodHistoryComponent implements OnInit {
   moodEntries: MoodEntry[] = [];
+  viewMode: 'list' | 'calendar' = 'calendar';
+  currentMonth: Date = new Date();
+  calendarDays: CalendarDay[] = [];
 
   constructor(
     private moodStorage: MoodStorageService,
@@ -19,10 +28,112 @@ export class MoodHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEntries();
+    this.generateCalendar();
   }
 
   loadEntries(): void {
     this.moodEntries = this.moodStorage.getMoodEntries();
+    this.generateCalendar();
+  }
+
+  toggleView(mode: 'list' | 'calendar'): void {
+    this.viewMode = mode;
+  }
+
+  generateCalendar(): void {
+    const year = this.currentMonth.getFullYear();
+    const month = this.currentMonth.getMonth();
+    
+    // Get first day of month and last day of month
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Get the day of week for first day (0 = Sunday)
+    const firstDayOfWeek = firstDay.getDay();
+    
+    // Calculate days to show from previous month
+    const daysFromPrevMonth = firstDayOfWeek;
+    
+    // Calculate days to show from next month (to complete the grid)
+    const totalDays = lastDay.getDate();
+    const daysFromNextMonth = (7 - ((daysFromPrevMonth + totalDays) % 7)) % 7;
+    
+    const days: CalendarDay[] = [];
+    
+    // Add days from previous month
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
+      const date = new Date(year, month - 1, prevMonthLastDay - i);
+      days.push({
+        date,
+        isCurrentMonth: false,
+        entries: this.getEntriesForDate(date)
+      });
+    }
+    
+    // Add days from current month
+    for (let day = 1; day <= totalDays; day++) {
+      const date = new Date(year, month, day);
+      days.push({
+        date,
+        isCurrentMonth: true,
+        entries: this.getEntriesForDate(date)
+      });
+    }
+    
+    // Add days from next month
+    for (let day = 1; day <= daysFromNextMonth; day++) {
+      const date = new Date(year, month + 1, day);
+      days.push({
+        date,
+        isCurrentMonth: false,
+        entries: this.getEntriesForDate(date)
+      });
+    }
+    
+    this.calendarDays = days;
+  }
+
+  getEntriesForDate(date: Date): MoodEntry[] {
+    return this.moodEntries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate.getFullYear() === date.getFullYear() &&
+             entryDate.getMonth() === date.getMonth() &&
+             entryDate.getDate() === date.getDate();
+    });
+  }
+
+  previousMonth(): void {
+    this.currentMonth = new Date(
+      this.currentMonth.getFullYear(),
+      this.currentMonth.getMonth() - 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentMonth = new Date(
+      this.currentMonth.getFullYear(),
+      this.currentMonth.getMonth() + 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  getMonthYearString(): string {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      year: 'numeric'
+    };
+    return this.currentMonth.toLocaleDateString('en-US', options);
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.getFullYear() === today.getFullYear() &&
+           date.getMonth() === today.getMonth() &&
+           date.getDate() === today.getDate();
   }
 
   deleteEntry(id: string): void {
