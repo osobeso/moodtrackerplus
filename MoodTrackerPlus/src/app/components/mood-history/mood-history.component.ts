@@ -11,6 +11,10 @@ import { MoodEntry } from '../../models/mood-entry.model';
 })
 export class MoodHistoryComponent implements OnInit {
   moodEntries: MoodEntry[] = [];
+  viewMode: 'list' | 'calendar' = 'calendar';
+  currentDate: Date = new Date();
+  calendarDays: CalendarDay[] = [];
+  weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   constructor(
     private moodStorage: MoodStorageService,
@@ -19,10 +23,69 @@ export class MoodHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEntries();
+    this.generateCalendar();
   }
 
   loadEntries(): void {
     this.moodEntries = this.moodStorage.getMoodEntries();
+    if (this.viewMode === 'calendar') {
+      this.generateCalendar();
+    }
+  }
+
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'list' ? 'calendar' : 'list';
+    if (this.viewMode === 'calendar') {
+      this.generateCalendar();
+    }
+  }
+
+  generateCalendar(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    
+    this.calendarDays = [];
+    
+    // Add empty days for the start of the month
+    for (let i = 0; i < startDay; i++) {
+      this.calendarDays.push({ date: null, moods: [] });
+    }
+    
+    // Add days with mood entries
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const moods = this.getMoodsForDate(date);
+      this.calendarDays.push({ date, moods });
+    }
+  }
+
+  getMoodsForDate(date: Date): MoodEntry[] {
+    return this.moodEntries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate.getFullYear() === date.getFullYear() &&
+             entryDate.getMonth() === date.getMonth() &&
+             entryDate.getDate() === date.getDate();
+    });
+  }
+
+  previousMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  getMonthYear(): string {
+    const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    return this.currentDate.toLocaleDateString('en-US', options);
   }
 
   deleteEntry(id: string): void {
@@ -74,4 +137,9 @@ export class MoodHistoryComponent implements OnInit {
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
     return this.formatDate(date);
   }
+}
+
+interface CalendarDay {
+  date: Date | null;
+  moods: MoodEntry[];
 }
