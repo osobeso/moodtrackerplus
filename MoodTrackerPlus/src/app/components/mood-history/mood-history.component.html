@@ -1,4 +1,5 @@
 <div class="history-container">
+<!-- Added comments for HTML instructions -->
 <header class="header">
   <button class="back-button" (click)="goBack()" aria-label="Go back to mood selector">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -8,7 +9,9 @@
   </button>
   <h1>Mood History</h1>
   @if (moodEntries.length > 0) {
-    <button class="clear-button" (click)="clearAll()" aria-label="Clear all mood entries">Clear All</button>
+    <button class="toggle-view-button" (click)="toggleViewMode()" aria-label="Toggle between list and calendar view">
+      {{ viewMode === 'list' ? '📅 Calendar' : '📋 List' }}
+    </button>
   }
 </header>
 
@@ -20,34 +23,88 @@
       <button class="add-mood-button" (click)="goBack()">Add Your First Mood</button>
     </div>
   } @else {
-    <main>
-      <section class="entries-list" aria-label="Mood entry list">
-        @for (entry of moodEntries; track entry.id) {
-          <article class="entry-card">
-            <div class="entry-emoji" aria-hidden="true">{{ entry.emoji }}</div>
-            <div class="entry-details">
-              <h3 class="entry-mood">{{ entry.mood }}</h3>
-              <p class="entry-time">{{ getRelativeTime(entry.timestamp) }}</p>
-              <p class="entry-date">
-                <time [attr.datetime]="entry.timestamp">
-                  {{ formatDate(entry.timestamp) }} at {{ formatTime(entry.timestamp) }}
-                </time>
-              </p>
-            </div>
-            <button class="delete-button" (click)="deleteEntry(entry.id)" [attr.aria-label]="'Delete ' + entry.mood + ' mood entry from ' + formatDate(entry.timestamp)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-              <span class="visually-hidden">Delete</span>
-            </button>
-          </article>
-        }
-      </section>
+    @if (viewMode === 'calendar') {
+      <!-- Calendar View -->
+      <main class="calendar-view">
+        <div class="calendar-header">
+          <button class="nav-button" (click)="previousMonth()" aria-label="Previous month">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <h2 class="calendar-title">{{ getCurrentMonthYear() }}</h2>
+          <button class="nav-button" (click)="nextMonth()" aria-label="Next month">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
 
-      <footer class="stats" role="contentinfo">
-        <p class="total-entries" aria-live="polite">Total entries: {{ moodEntries.length }}</p>
-      </footer>
-    </main>
+        <div class="calendar-grid">
+          <!-- Day headers -->
+          <div class="day-header">Sun</div>
+          <div class="day-header">Mon</div>
+          <div class="day-header">Tue</div>
+          <div class="day-header">Wed</div>
+          <div class="day-header">Thu</div>
+          <div class="day-header">Fri</div>
+          <div class="day-header">Sat</div>
+
+          <!-- Calendar days -->
+          @for (day of calendarDays; track day.date.getTime()) {
+            <div 
+              class="calendar-day" 
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="isToday(day.date)"
+              [class.has-entries]="day.entries.length > 0">
+              <div class="day-number">{{ day.date.getDate() }}</div>
+              @if (day.entries.length > 0) {
+                <div class="day-emojis">
+                  @for (entry of day.entries; track entry.id) {
+                    <span class="emoji" [title]="entry.mood + ' at ' + formatTime(entry.timestamp)">{{ entry.emoji }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <footer class="stats" role="contentinfo">
+          <p class="total-entries" aria-live="polite">Total entries: {{ moodEntries.length }}</p>
+          <button class="clear-button-small" (click)="clearAll()" aria-label="Clear all mood entries">Clear All History</button>
+        </footer>
+      </main>
+    } @else {
+      <!-- List View -->
+      <main>
+        <section class="entries-list" aria-label="Mood entry list">
+          @for (entry of moodEntries; track entry.id) {
+            <article class="entry-card">
+              <div class="entry-emoji" aria-hidden="true">{{ entry.emoji }}</div>
+              <div class="entry-details">
+                <h3 class="entry-mood">{{ entry.mood }}</h3>
+                <p class="entry-time">{{ getRelativeTime(entry.timestamp) }}</p>
+                <p class="entry-date">
+                  <time [attr.datetime]="entry.timestamp">
+                    {{ formatDate(entry.timestamp) }} at {{ formatTime(entry.timestamp) }}
+                  </time>
+                </p>
+              </div>
+              <button class="delete-button" (click)="deleteEntry(entry.id)" [attr.aria-label]="'Delete ' + entry.mood + ' mood entry from ' + formatDate(entry.timestamp)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span class="visually-hidden">Delete</span>
+              </button>
+            </article>
+          }
+        </section>
+
+        <footer class="stats" role="contentinfo">
+          <p class="total-entries" aria-live="polite">Total entries: {{ moodEntries.length }}</p>
+        </footer>
+      </main>
+    }
   }
 </div>

@@ -35,7 +35,7 @@
   text-align: center;
 }
 
-.back-button, .clear-button {
+.back-button, .clear-button, .toggle-view-button {
   background: transparent;
   border: 2px solid #667eea;
   color: #667eea;
@@ -51,22 +51,22 @@
   font-family: inherit;
 }
 
-.back-button:hover, .clear-button:hover {
+.back-button:hover, .clear-button:hover, .toggle-view-button:hover {
   background: #667eea;
   color: white;
   transform: translateY(-2px);
 }
 
-.back-button:focus, .clear-button:focus {
+.back-button:focus, .clear-button:focus, .toggle-view-button:focus {
   outline: 3px solid #667eea;
   outline-offset: 2px;
 }
 
-.back-button:focus:not(:focus-visible), .clear-button:focus:not(:focus-visible) {
+.back-button:focus:not(:focus-visible), .clear-button:focus:not(:focus-visible), .toggle-view-button:focus:not(:focus-visible) {
   outline: none;
 }
 
-.back-button:focus-visible, .clear-button:focus-visible {
+.back-button:focus-visible, .clear-button:focus-visible, .toggle-view-button:focus-visible {
   outline: 3px solid #667eea;
   outline-offset: 2px;
 }
@@ -249,6 +249,171 @@
   font-weight: 500;
 }
 
+/* Calendar View Styles */
+.calendar-view {
+  margin-top: 1rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.calendar-title {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 700;
+}
+
+.nav-button {
+  background: white;
+  border: 2px solid #667eea;
+  color: #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.nav-button:hover {
+  background: #667eea;
+  color: white;
+  transform: scale(1.1);
+}
+
+.nav-button:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.nav-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.nav-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.day-header {
+  text-align: center;
+  font-weight: 700;
+  color: #667eea;
+  padding: 0.75rem 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  min-height: 80px;
+  padding: 0.5rem;
+  border-radius: 10px;
+  background: #f7fafc;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background: #edf2f7;
+  transform: translateY(-2px);
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.calendar-day.today {
+  background: #e6f3ff;
+  border: 2px solid #667eea;
+}
+
+.calendar-day.today .day-number {
+  color: #667eea;
+  font-weight: 700;
+}
+
+.calendar-day.has-entries {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.day-number {
+  font-size: 0.85rem;
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.day-emojis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.day-emojis .emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: help;
+}
+
+.clear-button-small {
+  background: transparent;
+  border: 2px solid #f56565;
+  color: #f56565;
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.clear-button-small:hover {
+  background: #f56565;
+  color: white;
+}
+
+.clear-button-small:focus {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
+}
+
+.clear-button-small:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.clear-button-small:focus-visible {
+  outline: 3px solid #f56565;
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
   .history-container {
     padding: 1rem;
@@ -264,7 +429,7 @@
     order: 1;
   }
 
-  .clear-button {
+  .clear-button, .toggle-view-button {
     order: 3;
   }
 
@@ -279,5 +444,36 @@
 
   .entry-mood {
     font-size: 1.125rem;
+  }
+
+  .calendar-header {
+    padding: 0;
+  }
+
+  .calendar-title {
+    font-size: 1.25rem;
+  }
+
+  .calendar-grid {
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 0.25rem;
+  }
+
+  .day-header {
+    font-size: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .day-emojis .emoji {
+    font-size: 1.25rem;
+  }
+
+  .day-number {
+    font-size: 0.75rem;
   }
 }
