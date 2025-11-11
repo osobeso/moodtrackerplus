@@ -3,6 +3,12 @@ import { Router } from '@angular/router';
 import { MoodStorageService } from '../../services/mood-storage.service';
 import { MoodEntry } from '../../models/mood-entry.model';
 
+interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+  moods: MoodEntry[];
+}
+
 @Component({
   selector: 'app-mood-history',
   templateUrl: './mood-history.component.html',
@@ -11,6 +17,9 @@ import { MoodEntry } from '../../models/mood-entry.model';
 })
 export class MoodHistoryComponent implements OnInit {
   moodEntries: MoodEntry[] = [];
+  viewMode: 'list' | 'calendar' = 'list';
+  currentMonth: Date = new Date();
+  calendarDays: CalendarDay[] = [];
 
   constructor(
     private moodStorage: MoodStorageService,
@@ -19,6 +28,72 @@ export class MoodHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEntries();
+    this.generateCalendar();
+  }
+
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'list' ? 'calendar' : 'list';
+  }
+
+  previousMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  getCurrentMonthYear(): string {
+    const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    return this.currentMonth.toLocaleDateString('en-US', options);
+  }
+
+  generateCalendar(): void {
+    const year = this.currentMonth.getFullYear();
+    const month = this.currentMonth.getMonth();
+    
+    // Get first day of the month
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Get the day of week for the first day (0 = Sunday, 6 = Saturday)
+    const firstDayOfWeek = firstDay.getDay();
+    
+    // Calculate start date (including previous month days)
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDayOfWeek);
+    
+    // Generate 42 days (6 weeks) for a complete calendar grid
+    this.calendarDays = [];
+    const currentDate = new Date(startDate);
+    
+    for (let i = 0; i < 42; i++) {
+      const isCurrentMonth = currentDate.getMonth() === month;
+      const dayMoods = this.getMoodsForDate(currentDate);
+      
+      this.calendarDays.push({
+        date: new Date(currentDate),
+        isCurrentMonth,
+        moods: dayMoods
+      });
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+
+  getMoodsForDate(date: Date): MoodEntry[] {
+    return this.moodEntries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate.getFullYear() === date.getFullYear() &&
+             entryDate.getMonth() === date.getMonth() &&
+             entryDate.getDate() === date.getDate();
+    });
+  }
+
+  getDayNumber(date: Date): number {
+    return date.getDate();
   }
 
   loadEntries(): void {

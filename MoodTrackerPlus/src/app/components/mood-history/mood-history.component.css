@@ -35,7 +35,13 @@
   text-align: center;
 }
 
-.back-button, .clear-button {
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.back-button, .clear-button, .view-toggle-button {
   background: transparent;
   border: 2px solid #667eea;
   color: #667eea;
@@ -51,22 +57,22 @@
   font-family: inherit;
 }
 
-.back-button:hover, .clear-button:hover {
+.back-button:hover, .clear-button:hover, .view-toggle-button:hover {
   background: #667eea;
   color: white;
   transform: translateY(-2px);
 }
 
-.back-button:focus, .clear-button:focus {
+.back-button:focus, .clear-button:focus, .view-toggle-button:focus {
   outline: 3px solid #667eea;
   outline-offset: 2px;
 }
 
-.back-button:focus:not(:focus-visible), .clear-button:focus:not(:focus-visible) {
+.back-button:focus:not(:focus-visible), .clear-button:focus:not(:focus-visible), .view-toggle-button:focus:not(:focus-visible) {
   outline: none;
 }
 
-.back-button:focus-visible, .clear-button:focus-visible {
+.back-button:focus-visible, .clear-button:focus-visible, .view-toggle-button:focus-visible {
   outline: 3px solid #667eea;
   outline-offset: 2px;
 }
@@ -279,5 +285,141 @@
 
   .entry-mood {
     font-size: 1.125rem;
+  }
+}
+
+/* Calendar View Styles */
+.calendar-view {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.current-month {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 700;
+}
+
+.month-nav-button {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.month-nav-button:hover {
+  background: #667eea;
+  color: white;
+  transform: scale(1.1);
+}
+
+.month-nav-button:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.month-nav-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.month-nav-button:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: 600;
+  color: #667eea;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.calendar-day {
+  min-height: 80px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.calendar-day:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.day-number {
+  font-size: 0.875rem;
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.day-moods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.mood-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: help;
+}
+
+@media (max-width: 768px) {
+  .calendar-view {
+    padding: 1rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 0.25rem;
+  }
+
+  .mood-emoji {
+    font-size: 1.2rem;
+  }
+
+  .current-month {
+    font-size: 1.25rem;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
   }
 }
