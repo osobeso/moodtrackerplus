@@ -11,6 +11,9 @@ import { MoodEntry } from '../../models/mood-entry.model';
 })
 export class MoodHistoryComponent implements OnInit {
   moodEntries: MoodEntry[] = [];
+  viewMode: 'list' | 'calendar' = 'list';
+  calendarDays: CalendarDay[] = [];
+  currentMonth: Date = new Date();
 
   constructor(
     private moodStorage: MoodStorageService,
@@ -19,6 +22,7 @@ export class MoodHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEntries();
+    this.generateCalendar();
   }
 
   loadEntries(): void {
@@ -74,4 +78,80 @@ export class MoodHistoryComponent implements OnInit {
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
     return this.formatDate(date);
   }
+
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'list' ? 'calendar' : 'list';
+  }
+
+  generateCalendar(): void {
+    const year = this.currentMonth.getFullYear();
+    const month = this.currentMonth.getMonth();
+    
+    // Get first day of the month and last day
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Get the day of week for the first day (0 = Sunday)
+    const firstDayOfWeek = firstDay.getDay();
+    
+    // Create array to hold calendar days
+    this.calendarDays = [];
+    
+    // Add empty days for padding at start
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      this.calendarDays.push({ date: null, entries: [] });
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const date = new Date(year, month, day);
+      const entries = this.getEntriesForDate(date);
+      this.calendarDays.push({ date, entries });
+    }
+  }
+
+  getEntriesForDate(date: Date): MoodEntry[] {
+    return this.moodEntries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate.getFullYear() === date.getFullYear() &&
+             entryDate.getMonth() === date.getMonth() &&
+             entryDate.getDate() === date.getDate();
+    });
+  }
+
+  previousMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth(): void {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  getMonthYear(): string {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      year: 'numeric'
+    };
+    return this.currentMonth.toLocaleDateString('en-US', options);
+  }
+
+  getDayName(index: number): string {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return days[index];
+  }
+
+  isToday(date: Date | null): boolean {
+    if (!date) return false;
+    const today = new Date();
+    return date.getFullYear() === today.getFullYear() &&
+           date.getMonth() === today.getMonth() &&
+           date.getDate() === today.getDate();
+  }
+}
+
+interface CalendarDay {
+  date: Date | null;
+  entries: MoodEntry[];
 }
