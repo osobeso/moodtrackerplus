@@ -21,6 +21,49 @@
     </div>
   } @else {
     <main>
+      @if (weatherCorrelations.length > 0) {
+        <section class="correlations-section">
+          <button class="toggle-correlations-button" (click)="toggleCorrelations()" aria-label="Toggle weather-mood correlations">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M3 3v18h18"></path>
+              <path d="M18 17V9"></path>
+              <path d="M13 17V5"></path>
+              <path d="M8 17v-3"></path>
+            </svg>
+            <span>{{ showCorrelations ? 'Hide' : 'Show' }} Weather-Mood Patterns</span>
+          </button>
+          
+          @if (showCorrelations) {
+            <div class="correlations-grid">
+              @for (correlation of weatherCorrelations; track correlation.weatherCondition) {
+                <article class="correlation-card">
+                  <div class="correlation-header">
+                    <span class="correlation-icon" aria-hidden="true">{{ correlation.weatherIcon }}</span>
+                    <h3 class="correlation-title">{{ correlation.weatherCondition }}</h3>
+                    <span class="correlation-count">{{ correlation.totalCount }} entries</span>
+                  </div>
+                  <div class="mood-distribution">
+                    @for (moodData of correlation.moodCounts; track moodData.mood) {
+                      <div class="mood-bar-container">
+                        <div class="mood-bar-label">
+                          <span class="mood-bar-emoji">{{ moodData.emoji }}</span>
+                          <span class="mood-bar-name">{{ moodData.mood }}</span>
+                        </div>
+                        <div class="mood-bar-wrapper">
+                          <div class="mood-bar" [style.width.%]="(moodData.count / correlation.totalCount) * 100">
+                            <span class="mood-bar-count">{{ moodData.count }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      }
+      
       <section class="entries-list" aria-label="Mood entry list">
         @for (entry of moodEntries; track entry.id) {
           <article class="entry-card">
@@ -33,6 +76,13 @@
                   {{ formatDate(entry.timestamp) }} at {{ formatTime(entry.timestamp) }}
                 </time>
               </p>
+              @if (entry.weather) {
+                <div class="weather-info">
+                  <span class="weather-icon" aria-hidden="true">{{ entry.weather.icon }}</span>
+                  <span class="weather-temp">{{ entry.weather.temperature }}°F</span>
+                  <span class="weather-condition">{{ entry.weather.condition }}</span>
+                </div>
+              }
             </div>
             <button class="delete-button" (click)="deleteEntry(entry.id)" [attr.aria-label]="'Delete ' + entry.mood + ' mood entry from ' + formatDate(entry.timestamp)">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">

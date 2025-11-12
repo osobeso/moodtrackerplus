@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MoodStorageService } from '../../services/mood-storage.service';
+import { WeatherService } from '../../services/weather.service';
 import { MoodEntry } from '../../models/mood-entry.model';
 
 interface Mood {
@@ -33,22 +34,26 @@ export class MoodSelectorComponent {
 
   constructor(
     private moodStorage: MoodStorageService,
+    private weatherService: WeatherService,
     private router: Router
   ) {}
 
   selectMood(mood: Mood): void {
-    this.lastSavedEntry = this.moodStorage.saveMoodEntry(mood.name, mood.emoji);
-    this.toastMessage = `${mood.name} mood recorded!`;
-    this.toastEmoji = mood.emoji;
-    this.showToast = true;
+    // Fetch weather data and save with mood
+    this.weatherService.getCurrentWeather().subscribe(weather => {
+      this.lastSavedEntry = this.moodStorage.saveMoodEntry(mood.name, mood.emoji, weather || undefined);
+      this.toastMessage = `${mood.name} mood recorded!`;
+      this.toastEmoji = mood.emoji;
+      this.showToast = true;
 
-    // Auto-hide toast after 5 seconds
-    if (this.toastTimeout) {
-      clearTimeout(this.toastTimeout);
-    }
-    this.toastTimeout = setTimeout(() => {
-      this.hideToast();
-    }, 5000);
+      // Auto-hide toast after 5 seconds
+      if (this.toastTimeout) {
+        clearTimeout(this.toastTimeout);
+      }
+      this.toastTimeout = setTimeout(() => {
+        this.hideToast();
+      }, 5000);
+    });
   }
 
   revertLastMood(): void {

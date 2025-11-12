@@ -3,6 +3,13 @@ import { Router } from '@angular/router';
 import { MoodStorageService } from '../../services/mood-storage.service';
 import { MoodEntry } from '../../models/mood-entry.model';
 
+interface WeatherMoodCorrelation {
+  weatherCondition: string;
+  weatherIcon: string;
+  moodCounts: { mood: string; emoji: string; count: number }[];
+  totalCount: number;
+}
+
 @Component({
   selector: 'app-mood-history',
   templateUrl: './mood-history.component.html',
@@ -11,6 +18,8 @@ import { MoodEntry } from '../../models/mood-entry.model';
 })
 export class MoodHistoryComponent implements OnInit {
   moodEntries: MoodEntry[] = [];
+  weatherCorrelations: WeatherMoodCorrelation[] = [];
+  showCorrelations = false;
 
   constructor(
     private moodStorage: MoodStorageService,
@@ -23,6 +32,52 @@ export class MoodHistoryComponent implements OnInit {
 
   loadEntries(): void {
     this.moodEntries = this.moodStorage.getMoodEntries();
+    this.calculateWeatherCorrelations();
+  }
+
+  calculateWeatherCorrelations(): void {
+    const entriesWithWeather = this.moodEntries.filter(entry => entry.weather);
+    
+    if (entriesWithWeather.length === 0) {
+      this.weatherCorrelations = [];
+      return;
+    }
+
+    // Group by weather condition
+    const weatherGroups = new Map<string, MoodEntry[]>();
+    entriesWithWeather.forEach(entry => {
+      const condition = entry.weather!.condition;
+      if (!weatherGroups.has(condition)) {
+        weatherGroups.set(condition, []);
+      }
+      weatherGroups.get(condition)!.push(entry);
+    });
+
+    // Calculate mood distribution for each weather condition
+    this.weatherCorrelations = Array.from(weatherGroups.entries()).map(([condition, entries]) => {
+      const moodCounts = new Map<string, { mood: string; emoji: string; count: number }>();
+      
+      entries.forEach(entry => {
+        if (!moodCounts.has(entry.mood)) {
+          moodCounts.set(entry.mood, { mood: entry.mood, emoji: entry.emoji, count: 0 });
+        }
+        moodCounts.get(entry.mood)!.count++;
+      });
+
+      // Sort by count descending
+      const sortedMoods = Array.from(moodCounts.values()).sort((a, b) => b.count - a.count);
+
+      return {
+        weatherCondition: condition,
+        weatherIcon: entries[0].weather!.icon,
+        moodCounts: sortedMoods,
+        totalCount: entries.length
+      };
+    }).sort((a, b) => b.totalCount - a.totalCount); // Sort weather conditions by frequency
+  }
+
+  toggleCorrelations(): void {
+    this.showCorrelations = !this.showCorrelations;
   }
 
   deleteEntry(id: string): void {
