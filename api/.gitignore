@@ -1,0 +1,26 @@
+## Azure Functions
+local.settings.json
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json
+.python_packages/
+
+## Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+## Azurite
+.azurite/
+
+## User-specific files
+*.user
+*.suo
+*.cache
+
+## VS Code
+.vscode/
+
+## Test results
+TestResults/
+*.trx
