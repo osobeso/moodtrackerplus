@@ -1,28 +1,57 @@
+<!-- Main container for the mood selector interface -->
 <div class="mood-selector-container">
+  <!-- Page header with main heading and descriptive subtitle -->
   <header class="header">
     <h1>How are you feeling today?</h1>
     <p class="subtitle">Track your emotional journey</p>
   </header>
 
+  <!-- Main content area containing mood selection interface -->
   <main>
-    <section class="mood-grid" role="group" aria-labelledby="mood-selection-heading">
+    <!-- 
+      Mood selection grid
+      - Uses role="group" to indicate related controls
+      - aria-labelledby connects to visually-hidden heading for screen readers
+      - Each button has descriptive aria-label for clarity
+    -->
+    <section class="mood-grid" role="group" aria-labelledby="mood-selection-heading" aria-describedby="mood-selection-description">
+      <!-- Screen reader only heading for semantic structure -->
       <h2 id="mood-selection-heading" class="visually-hidden">Select your current mood</h2>
+      <!-- Screen reader only description providing additional context -->
+      <p id="mood-selection-description" class="visually-hidden">Choose one of the available mood options to record how you are feeling. Your selection will be saved to your mood history.</p>
       @for (mood of moods; track mood.name) {
+        <!-- 
+          Mood selection button
+          - aria-label provides full context: "Select [mood] mood"
+          - Background color is set dynamically but visible text ensures accessibility
+          - Emoji is decorative (aria-hidden) while mood name provides text alternative
+        -->
         <button 
           class="mood-button" 
           [style.background-color]="mood.color"
           [attr.aria-label]="'Select ' + mood.name + ' mood'"
           (click)="selectMood(mood)">
+          <!-- Emoji is decorative and hidden from screen readers -->
           <span class="mood-emoji" aria-hidden="true">{{ mood.emoji }}</span>
+          <!-- Visible mood name for all users -->
           <span class="mood-name">{{ mood.name }}</span>
         </button>
       }
     </section>
   </main>
 
+  <!-- Footer with navigation to mood history -->
   <footer class="footer">
+    <!-- 
+      View history button
+      - aria-label provides clear purpose
+      - SVG icon is decorative (aria-hidden, focusable="false")
+      - Visible text label ensures clarity for all users
+    -->
     <button class="history-button" (click)="viewHistory()" aria-label="View mood history">
+      <!-- Decorative clock icon hidden from screen readers -->
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <title>Clock icon</title>
         <path d="M12 8v4l3 3"></path>
         <circle cx="12" cy="12" r="10"></circle>
       </svg>
@@ -31,6 +60,12 @@
   </footer>
 </div>
 
+<!-- 
+  Toast notification component
+  - Has role="alert" and aria-live="assertive" for screen reader announcements
+  - Provides feedback when mood is recorded with option to undo
+  - Automatically dismisses after 5 seconds
+-->
 <app-toast 
   [show]="showToast" 
   [message]="toastMessage" 
