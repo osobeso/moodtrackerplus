@@ -1,0 +1,55 @@
+### MoodTrackerPlus API Test File
+### Use with REST Client extension in VS Code or similar tools
+
+@baseUrl = http://localhost:7071/api
+
+### Create a mood entry
+POST {{baseUrl}}/moods
+Content-Type: application/json
+
+{
+  "moodValue": 5,
+  "notes": "Feeling great today!"
+}
+
+### Create another mood entry with specific date
+POST {{baseUrl}}/moods
+Content-Type: application/json
+
+{
+  "moodValue": 3,
+  "notes": "A bit anxious",
+  "date": "2025-11-12T10:00:00Z"
+}
+
+### List all mood entries
+GET {{baseUrl}}/moods
+
+### List mood entries with date range
+GET {{baseUrl}}/moods?from=2025-11-01&to=2025-11-30
+
+### Get mood statistics
+GET {{baseUrl}}/moods/stats
+
+### Get mood statistics with date range
+GET {{baseUrl}}/moods/stats?from=2025-11-01&to=2025-11-30
+
+### Delete a mood entry (replace with actual partitionKey and rowKey)
+DELETE {{baseUrl}}/moods/anon/your-row-key-here
+
+### Test validation - Invalid mood value (should return 400)
+POST {{baseUrl}}/moods
+Content-Type: application/json
+
+{
+  "moodValue": 10,
+  "notes": "Invalid mood value"
+}
+
+### Test validation - Missing mood value (should return 400)
+POST {{baseUrl}}/moods
+Content-Type: application/json
+
+{
+  "notes": "No mood value"
+}
