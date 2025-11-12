@@ -91,8 +91,106 @@ The app uses the browser's `localStorage` API to store mood entries. Data persis
 
 - **Angular 20**: Modern Angular framework
 - **TypeScript**: Type-safe development
-- **LocalStorage API**: For persistent data storage
+- **LocalStorage API**: For persistent data storage (frontend fallback)
+- **Azure Functions**: Serverless backend API
+- **Azure Table Storage**: Cloud data persistence
 - **CSS3**: Modern styling with gradients and animations
+
+---
+
+## Backend API
+
+The application includes a serverless backend built with Azure Functions (.NET 8 isolated process) and Azure Table Storage for cloud data persistence.
+
+### API Endpoints
+
+- **POST /api/moods** - Create a new mood entry
+  - Body: `{ "moodValue": 1-6, "notes": "optional", "date": "optional ISO date" }`
+  - Returns: Created mood entry with partition key and row key
+
+- **GET /api/moods?from=yyyy-MM-dd&to=yyyy-MM-dd** - List mood entries
+  - Query Parameters: `from` and `to` (optional date range)
+  - Returns: Array of mood entries for the authenticated user
+
+- **DELETE /api/moods/{partitionKey}/{rowKey}** - Delete a specific mood entry
+  - Returns: 204 No Content on success
+
+- **GET /api/moods/stats?from=yyyy-MM-dd&to=yyyy-MM-dd** - Get aggregate statistics
+  - Query Parameters: `from` and `to` (optional date range)
+  - Returns: Count per mood, average per day, total entries, overall average
+
+### Local Development
+
+#### Prerequisites
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local)
+- [Azurite](https://docs.microsoft.com/azure/storage/common/storage-use-azurite) (Azure Storage Emulator)
+
+#### Running the Backend Locally
+
+1. **Start Azurite** (Azure Storage Emulator):
+   ```bash
+   azurite --silent --location .azurite --debug .azurite\debug.log
+   ```
+
+2. **Configure local settings**:
+   ```bash
+   cd api/MoodTrackerPlus.Functions
+   cp local.settings.json.example local.settings.json
+   ```
+   
+   The default configuration uses `UseDevelopmentStorage=true` which connects to Azurite.
+
+3. **Start the Functions runtime**:
+   ```bash
+   cd api/MoodTrackerPlus.Functions
+   func start
+   ```
+   
+   Or use the .NET CLI:
+   ```bash
+   cd api/MoodTrackerPlus.Functions
+   dotnet build
+   dotnet run
+   ```
+
+4. **Test the API**:
+   ```bash
+   # Create a mood entry
+   curl -X POST http://localhost:7071/api/moods \
+     -H "Content-Type: application/json" \
+     -d '{"moodValue": 5, "notes": "Feeling great!"}'
+   
+   # List mood entries
+   curl http://localhost:7071/api/moods
+   
+   # Get statistics
+   curl http://localhost:7071/api/moods/stats
+   ```
+
+### Authentication
+
+The backend uses Azure Static Web Apps built-in authentication (Easy Auth). The authentication helper extracts the user ID from the `X-MS-CLIENT-PRINCIPAL` header provided by Static Web Apps.
+
+- **Authenticated users**: Mood entries are stored with their user ID as the partition key
+- **Anonymous users**: Mood entries are stored under the "anon" partition key
+
+### Deployment
+
+The application is designed to be deployed via Azure Static Web Apps with a linked Functions backend:
+
+1. **Create an Azure Static Web App** in the Azure Portal
+2. **Configure the GitHub Actions workflow** by adding the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret
+3. **Push to the main branch** to trigger automatic deployment
+
+The workflow builds both the Angular frontend and the Azure Functions backend, deploying them together as a single Static Web App.
+
+### Infrastructure
+
+The backend requires:
+- **Azure Storage Account** with Table Storage for storing mood entries
+- **Azure Functions** (Flex Consumption plan recommended)
+- **Application Insights** (optional, for monitoring and telemetry)
 
 ---
 
